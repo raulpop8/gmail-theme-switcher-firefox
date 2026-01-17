@@ -1,0 +1,74 @@
+
+html.gmail-dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #1a1a1a;
+}
+
+/* preserve images, videos, and media */
+html.gmail-dark-mode img,
+html.gmail-dark-mode video,
+html.gmail-dark-mode iframe,
+html.gmail-dark-mode [style*="background-image"],
+html.gmail-dark-mode .gmail-image-container,
+html.gmail-dark-mode [role="img"] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* preserve gmail's own dark mode elements */
+html.gmail-dark-mode [data-theme="dark"],
+html.gmail-dark-mode .dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* use GPU acceleration */
+html.gmail-dark-mode {
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* light mode no filters */
+html.gmail-light-mode {
+  filter: none;
+  background-color: #ffffff;
+}
+
+/* transition between themes */
+html {
+  transition: filter 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+/* potential readability issues with specific elements */
+html.gmail-dark-mode input,
+html.gmail-dark-mode textarea,
+html.gmail-dark-mode select {
+  filter: none;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+/* code blocks and pre-formatted text remain readable */
+html.gmail-dark-mode pre,
+html.gmail-dark-mode code {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+
+/* syntax highlighting in code if present */
+html.gmail-dark-mode .code-block,
+html.gmail-dark-mode .syntax-highlight {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* scrollbars */
+html.gmail-dark-mode ::-webkit-scrollbar {
+  background-color: #2a2a2a;
+}
+
+html.gmail-dark-mode ::-webkit-scrollbar-thumb {
+  background-color: #555;
+}
+
+html.gmail-dark-mode ::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}
