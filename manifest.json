@@ -30,8 +30,11 @@
   
   "browser_specific_settings": {
     "gecko": {
-      "id": "raul.pop8@gmail.com",
-      "strict_min_version": "91.0"
+      "id": "gmail-theme-switcher-firefox",
+      "strict_min_version": "91.0",
+      "data_collection_permissions": {
+        "optout": true
+      }
     }
   }
 }
