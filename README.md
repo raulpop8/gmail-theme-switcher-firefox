@@ -40,7 +40,7 @@ If you find this extension helpful, consider:
 
 ---
 
-Inspired by the need for a better Gmail
+Inspired by the need for a better gmail experience </br>
 Made with 💜 by [Raul Pop](https://raulpop.ro)
 
  <p align="center"><a href="https://ko-fi.com/raulpop" target="_blank" rel="noreferrer"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" /></a></p>
