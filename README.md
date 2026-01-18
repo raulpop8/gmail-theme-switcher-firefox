@@ -14,6 +14,7 @@ This extension automatically toggles dark mode based on system settings for a se
 ## Installation
 
 ### From Moziila Web Store
+<i>The extension is still under review so it's not available to install from the Mozilla Web Store, but you can install it manualy.</i>
 
 1. Visit the [Mozilla Web Store](https://addons.mozilla.org/en-US/firefox/addon/gmail-dark-mode-switcher/)
 2. Click "Add to Firefox"
