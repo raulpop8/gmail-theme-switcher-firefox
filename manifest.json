@@ -1,13 +1,22 @@
 {
   "manifest_version": 2,
   "name": "Gmail Dark Mode Switcher",
-  "version": "1.0",
+  "version": "1.2",
   "description": "This extension automatically toggles dark mode based on system settings for a seamless dark mode experience.",
   
   "permissions": [
     "storage",
     "tabs"
   ],
+  
+    "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    },
+    "default_title": "Gmail Theme Syncer"
+  },
   
   "background": {
     "scripts": ["background.js"],
