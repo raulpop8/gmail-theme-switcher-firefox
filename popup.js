@@ -3,6 +3,10 @@ const autoBtn = document.getElementById('auto-btn');
 const lightBtn = document.getElementById('light-btn');
 const darkBtn = document.getElementById('dark-btn');
 
+// Display version from manifest
+const manifest = browser.runtime.getManifest();
+document.getElementById('version-number').textContent = `v${manifest.version}`;
+
 // Load current settings
 async function loadSettings() {
   try {
