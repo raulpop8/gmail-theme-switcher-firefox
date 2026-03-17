@@ -24,12 +24,6 @@ A Firefox extension that automatically syncs Gmail's theme with your system pref
 ### Light Mode vs Dark Mode
 ![Gmail Theme Comparison](screenshots/comparison.png)
 
-### Popup Interface
-![Extension Popup](screenshots/popup-light.png) ![Extension Popup Dark](screenshots/popup-dark.png)
-
-### Compose Window
-![Compose Window Dark Mode](screenshots/compose-dark.png)
-
 
 ## 🚀 Installation
 
