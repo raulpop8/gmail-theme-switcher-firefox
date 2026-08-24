@@ -157,6 +157,60 @@ test('surface detection distinguishes light, dark, and image backgrounds', () =>
   assert.equal(vm.runInContext('isLightSurface(__image, true)', context), false);
 });
 
+test('message classification preserves dark email designs and adapts light ones', () => {
+  const { context } = loadContentScript();
+
+  function createMessage(backgroundColor, descendants = []) {
+    const classes = new Set();
+    return {
+      backgroundColor,
+      classes,
+      classList: {
+        toggle(name, enabled) {
+          if (enabled) {
+            classes.add(name);
+          } else {
+            classes.delete(name);
+          }
+        }
+      },
+      getBoundingClientRect: () => ({ width: 600, height: 700 }),
+      querySelectorAll: () => descendants
+    };
+  }
+
+  const darkMessage = createMessage('rgb(18, 18, 18)');
+  const lightMessage = createMessage('rgb(255, 255, 255)');
+  const darkTable = {
+    backgroundColor: 'rgb(12, 12, 12)',
+    getBoundingClientRect: () => ({ width: 600, height: 650 })
+  };
+  const transparentDarkMessage = createMessage(
+    'rgba(0, 0, 0, 0)',
+    [darkTable]
+  );
+  const plainTextMessage = createMessage('rgba(0, 0, 0, 0)');
+
+  for (const message of [
+    darkMessage,
+    lightMessage,
+    transparentDarkMessage,
+    plainTextMessage
+  ]) {
+    context.__message = message;
+    vm.runInContext('classifyMessageBody(__message)', context);
+  }
+
+  assert.equal(darkMessage.classes.has('gmail-theme-preserve-message'), true);
+  assert.equal(darkMessage.classes.has('gmail-theme-invert-message'), false);
+  assert.equal(lightMessage.classes.has('gmail-theme-invert-message'), true);
+  assert.equal(
+    transparentDarkMessage.classes.has('gmail-theme-preserve-message'),
+    true
+  );
+  assert.equal(plainTextMessage.classes.has('gmail-theme-invert-message'), true);
+});
+
 test('message decoration marks the real item and ancestor surfaces', () => {
   const { context } = loadContentScript();
 
@@ -177,10 +231,21 @@ test('message decoration marks the real item and ancestor surfaces', () => {
   const main = createSurface(null, true);
   const wrapper = createSurface(main);
   const item = createSurface(wrapper);
+  const messageClasses = new Set();
   context.__messageBody = {
+    classList: {
+      toggle(name, enabled) {
+        if (enabled) {
+          messageClasses.add(name);
+        } else {
+          messageClasses.delete(name);
+        }
+      }
+    },
     closest: selector => selector === '[role="listitem"]' ? item : null,
     contains: () => false,
-    parentElement: item
+    parentElement: item,
+    querySelectorAll: () => []
   };
 
   vm.runInContext('decorateMessageBody(__messageBody)', context);
@@ -410,6 +475,12 @@ test('Gmail stylesheet combines message inversion with dark outer canvases', () 
   );
   assert.match(styles, /--gmail-content-link: #8ab4f8/);
   assert.match(styles, /:is\(img, video, iframe, canvas, svg\)/);
+  assert.match(styles, /\.gmail-theme-invert-message/);
+  assert.match(styles, /\.gmail-theme-preserve-message/);
+  assert.doesNotMatch(
+    styles,
+    /\.a3s\.aiL\s*\{[^}]*filter:\s*invert/i
+  );
   assert.doesNotMatch(styles, /\.LW-avf/);
   assert.doesNotMatch(
     styles,

@@ -52,18 +52,19 @@ html.gmail-message-dark-mode .gmail-theme-conversation :is(button, [role="button
   color: var(--gmail-content-text) !important;
 }
 
-/*
- * Rich messages control their own light backgrounds and colors. Invert only
- * the message body, leaving Gmail's native application chrome untouched.
- */
-html.gmail-message-dark-mode .ii.gt .a3s.aiL {
+/* Adapt light message bodies while preserving emails authored for dark mode. */
+html.gmail-message-dark-mode .ii.gt .a3s.aiL.gmail-theme-invert-message {
   filter: invert(1) hue-rotate(180deg);
 }
 
 /* Cancel the parent inversion for media so original colors are preserved. */
-html.gmail-message-dark-mode .ii.gt .a3s.aiL
+html.gmail-message-dark-mode .ii.gt .a3s.aiL.gmail-theme-invert-message
   :is(img, video, iframe, canvas, svg) {
   filter: invert(1) hue-rotate(180deg);
+}
+
+html.gmail-message-dark-mode .ii.gt .a3s.aiL.gmail-theme-preserve-message {
+  filter: none;
 }
 
 /* Popup and full-screen compose shells. */

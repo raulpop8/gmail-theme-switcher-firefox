@@ -27,7 +27,8 @@ A Firefox extension that keeps Gmail's native theme synchronized with your opera
 3. The extension checks Gmail's current native theme marker.
 4. When a change is needed, it briefly opens Gmail's theme settings out of view, selects Default or Dark, saves the choice, and closes the settings panel.
 5. In dark mode, a small runtime layer identifies conversation and compose surfaces that Gmail still renders with light colors.
-6. Message content is adapted separately, with media elements counter-filtered to protect their original colors.
+6. Message content is classified by its dominant background: light and plain-text messages are adapted, while emails already designed for dark mode are preserved.
+7. Media elements inside adapted messages are counter-filtered to protect their original colors.
 
 This design keeps most of the interface under Gmail's own theme system while fixing the message and compose areas that the native dark theme does not consistently cover.
 
@@ -91,6 +92,13 @@ Click the extension icon in your toolbar to access theme controls:
 Currently no keyboard shortcuts available. Coming in a future update!
 
 ## 📋 Changelog
+
+### Version 1.5
+
+- Preserved incoming emails that already use a predominantly dark design
+- Added dominant-background detection for HTML message bodies and nested email tables
+- Kept light HTML and transparent plain-text messages compatible with dark mode
+- Added regression tests for dark, light, nested-table, and plain-text messages
 
 ### Version 1.4
 

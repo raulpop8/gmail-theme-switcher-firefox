@@ -7,6 +7,8 @@ const AUTOMATION_ATTRIBUTE = 'data-gmail-native-theme-busy';
 const AUTOMATION_UI_CLASS = 'gmail-native-theme-automation-ui';
 const MESSAGE_DARK_CLASS = 'gmail-message-dark-mode';
 const MESSAGE_BODY_SELECTOR = '.ii.gt .a3s.aiL';
+const MESSAGE_INVERT_CLASS = 'gmail-theme-invert-message';
+const MESSAGE_PRESERVE_CLASS = 'gmail-theme-preserve-message';
 const COMPOSE_EDITOR_SELECTOR =
   '.Am[contenteditable="true"], .LW-avf[contenteditable="true"]';
 const MESSAGE_ITEM_CLASS = 'gmail-theme-message-item';
@@ -40,23 +42,96 @@ function setMessageContentTheme(isDark) {
   document.documentElement?.classList.toggle(MESSAGE_DARK_CLASS, isDark);
 }
 
+function getBackgroundLuminance(element) {
+  const channels = window.getComputedStyle(element)
+    .backgroundColor?.match(/[\d.]+/g)?.map(Number);
+  if (!channels || channels.length < 3) {
+    return null;
+  }
+
+  const [red, green, blue, alpha = 1] = channels;
+  if (alpha < 0.5) {
+    return null;
+  }
+
+  return (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+}
+
 function isLightSurface(element, preserveBackgroundImages = false) {
   const style = window.getComputedStyle(element);
   if (preserveBackgroundImages && style.backgroundImage && style.backgroundImage !== 'none') {
     return false;
   }
 
-  const channels = style.backgroundColor?.match(/[\d.]+/g)?.map(Number);
-  if (!channels || channels.length < 3) {
-    return false;
+  const luminance = getBackgroundLuminance(element);
+  return luminance !== null && luminance >= 0.72;
+}
+
+function getSurfaceArea(element) {
+  const rectangle = element.getBoundingClientRect?.();
+  if (!rectangle) {
+    return 0;
   }
 
-  const [red, green, blue, alpha = 1] = channels;
-  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
-  return alpha >= 0.5 && luminance >= 0.72;
+  const width = Number(rectangle.width) ||
+    Math.max(0, Number(rectangle.right) - Number(rectangle.left));
+  const height = Number(rectangle.height) ||
+    Math.max(0, Number(rectangle.bottom) - Number(rectangle.top));
+  return Math.max(0, width) * Math.max(0, height);
+}
+
+function shouldInvertMessageBody(messageBody) {
+  const structuralSelector =
+    'table, tbody, tr, td, div, section, article, main';
+  const candidates = [
+    messageBody,
+    ...messageBody.querySelectorAll(structuralSelector)
+  ].slice(0, 400);
+  let dominantSurface = null;
+  let fallbackLuminance = null;
+
+  for (const candidate of candidates) {
+    const luminance = getBackgroundLuminance(candidate);
+    if (luminance === null) {
+      continue;
+    }
+
+    fallbackLuminance ??= luminance;
+    const area = getSurfaceArea(candidate);
+    if (area < 2400) {
+      continue;
+    }
+
+    if (!dominantSurface || area > dominantSurface.area * 1.1) {
+      dominantSurface = { area, luminance };
+      continue;
+    }
+
+    // Nested email tables often overlap almost exactly. Prefer the dark layer
+    // when its footprint is close to the largest surface so an already-dark
+    // newsletter is not inverted merely because a light wrapper came first.
+    if (
+      luminance <= 0.4 &&
+      dominantSurface.luminance > 0.4 &&
+      area >= dominantSurface.area * 0.75
+    ) {
+      dominantSurface = { area, luminance };
+    }
+  }
+
+  const luminance = dominantSurface?.luminance ?? fallbackLuminance;
+  return luminance === null || luminance >= 0.5;
+}
+
+function classifyMessageBody(messageBody) {
+  const shouldInvert = shouldInvertMessageBody(messageBody);
+  messageBody.classList.toggle(MESSAGE_INVERT_CLASS, shouldInvert);
+  messageBody.classList.toggle(MESSAGE_PRESERVE_CLASS, !shouldInvert);
 }
 
 function decorateMessageBody(messageBody) {
+  classifyMessageBody(messageBody);
+
   const messageItem = messageBody.closest('[role="listitem"]') ||
     messageBody.closest('.Bk') ||
     messageBody.parentElement;
