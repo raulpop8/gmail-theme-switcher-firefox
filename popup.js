@@ -1,85 +1,45 @@
-// Get DOM elements
-const autoBtn = document.getElementById('auto-btn');
-const lightBtn = document.getElementById('light-btn');
-const darkBtn = document.getElementById('dark-btn');
+const themeButtons = Array.from(document.querySelectorAll('.theme-btn'));
 
-// Display version from manifest
 const manifest = browser.runtime.getManifest();
 document.getElementById('version-number').textContent = `v${manifest.version}`;
 
-// Load current settings
+function normalizeThemeMode(mode) {
+  return ['auto', 'light', 'dark'].includes(mode) ? mode : 'auto';
+}
+
+function updateActiveButton(mode) {
+  for (const button of themeButtons) {
+    const isActive = button.dataset.mode === mode;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  }
+}
+
 async function loadSettings() {
   try {
-    const data = await browser.storage.local.get(['themeMode']);
-    const mode = data.themeMode || 'auto';
-    
-    // Update button states
-    updateActiveButton(mode);
+    const data = await browser.storage.local.get('themeMode');
+    updateActiveButton(normalizeThemeMode(data.themeMode));
   } catch (error) {
     console.error('Error loading settings:', error);
   }
 }
 
-// Update which button appears active
-function updateActiveButton(mode) {
-  // Remove active class from all buttons
-  [autoBtn, lightBtn, darkBtn].forEach(btn => btn.classList.remove('active'));
-  
-  // Add active class to selected button
-  if (mode === 'auto') {
-    autoBtn.classList.add('active');
-  } else if (mode === 'light') {
-    lightBtn.classList.add('active');
-  } else if (mode === 'dark') {
-    darkBtn.classList.add('active');
-  }
-}
+async function selectTheme(mode) {
+  const previousMode = themeButtons.find(button =>
+    button.classList.contains('active')
+  )?.dataset.mode;
 
-// Apply theme change
-async function applyTheme(mode) {
+  updateActiveButton(mode);
   try {
-    let isDark = false;
-    
-    if (mode === 'auto') {
-      // Use system preference
-      const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      isDark = darkModeQuery.matches;
-    } else {
-      // Use manual selection
-      isDark = mode === 'dark';
-    }
-    
-    // Save settings
-    await browser.storage.local.set({ 
-      themeMode: mode,
-      darkMode: isDark 
-    });
-    
-    // Update UI
-    updateActiveButton(mode);
-    
-    // Notify all Gmail tabs
-    const tabs = await browser.tabs.query({ url: "*://mail.google.com/*" });
-    for (const tab of tabs) {
-      try {
-        await browser.tabs.sendMessage(tab.id, { 
-          action: "themeChanged", 
-          darkMode: isDark 
-        });
-      } catch (error) {
-        // Tab might not be ready, ignore
-      }
-    }
-    
+    await browser.storage.local.set({ themeMode: mode });
   } catch (error) {
-    console.error('Error applying theme:', error);
+    updateActiveButton(previousMode || 'auto');
+    console.error('Error saving settings:', error);
   }
 }
 
-// Event listeners
-autoBtn.addEventListener('click', () => applyTheme('auto'));
-lightBtn.addEventListener('click', () => applyTheme('light'));
-darkBtn.addEventListener('click', () => applyTheme('dark'));
+for (const button of themeButtons) {
+  button.addEventListener('click', () => selectTheme(button.dataset.mode));
+}
 
-// Initialize on popup open
 loadSettings();

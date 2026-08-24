@@ -5,23 +5,51 @@
 [![Mozilla Add-on](https://img.shields.io/amo/rating/gmail-dark-mode-switcher?color=734bbe)](https://addons.mozilla.org/en-US/firefox/addon/gmail-dark-mode-switcher/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-734bbe.svg)](https://opensource.org/licenses/MIT)
 
-A Firefox extension that automatically syncs Gmail's theme with your system preferences, providing a seamless dark mode experience. Now with manual controls!
+A Firefox extension that keeps Gmail's native theme synchronized with your operating system's light or dark preference, with manual controls whenever you want to override it.
 
 ## ✨ Features
 
-- 🔄 **Auto Mode** - Sync Gmail with system preferences
-- 🌙 **Manual Dark Mode** - Force dark theme anytime
-- ☀️ **Manual Light Mode** - Force light theme anytime
-- 🎨 **Popup Controls** - Easy theme switching from toolbar
-- ⚡️ **Instant Transitions** - Smooth, fast theme changes
-- 🏞️ **Image Preservation** - Maintains original image quality
-- 👓 **Readable Content** - Optimized text contrast
-- ⚫️ **Full Coverage** - Works everywhere including compose window
-- 🔄 **Account Switching** - Consistent theme across all Gmail accounts
+- 🔄 **Auto Mode** - Follows your operating system's light or dark preference in real time
+- 🌙 **Manual Dark Mode** - Forces Gmail's Dark theme regardless of system settings
+- ☀️ **Manual Light Mode** - Forces Gmail's Default theme regardless of system settings
+- 🎛️ **Accessible Popup Controls** - Provides one-click switching with clear selected-state feedback
+- 🎨 **Native-First Styling** - Lets Gmail control the main interface, including text, icons, hover states, selections, and read/unread contrast
+- 🌗 **Hybrid Message Rendering** - Adapts message content and directly styles Gmail's surrounding conversation surfaces
+- ✍️ **Dark Compose Windows** - Covers popup, expanded, and fullscreen compose layouts without modifying sent-email formatting
+- 🏞️ **Original Media Colors** - Counter-filters images, videos, iframes, canvas, and SVG content so media keeps its intended appearance
+- 🔄 **Dynamic Gmail Support** - Reapplies styling as messages, conversations, and compose windows are added to the page
+- 👥 **Multiple Accounts** - Synchronizes the active theme independently in each open Gmail tab
+
+## How It Works
+
+1. The toolbar popup stores the selected mode: Auto, Light, or Dark.
+2. Each Gmail tab resolves that choice against the operating system preference.
+3. The extension checks Gmail's current native theme marker.
+4. When a change is needed, it briefly opens Gmail's theme settings out of view, selects Default or Dark, saves the choice, and closes the settings panel.
+5. In dark mode, a small runtime layer identifies conversation and compose surfaces that Gmail still renders with light colors.
+6. Message content is adapted separately, with media elements counter-filtered to protect their original colors.
+
+This design keeps most of the interface under Gmail's own theme system while fixing the message and compose areas that the native dark theme does not consistently cover.
+
+## Privacy and Permissions
+
+- **`storage` only** - Saves the selected Auto, Light, or Dark preference locally in Firefox
+- **Gmail-only execution** - The content script runs only on `https://mail.google.com/*`
+- **No `tabs` permission** - Version 1.4 no longer reads or monitors the browser's tab list
+- **No data collection** - The extension does not collect, sell, or transmit personal data, email content, or browsing history
+
+Because the extension selects Gmail's native theme, the chosen Default or Dark theme becomes part of Gmail's own account settings and may also appear in other Gmail sessions. In Auto mode, an open Gmail tab will synchronize it again when the system preference changes.
+
+## Compatibility Notes
+
+- Firefox 142 or newer is required by the current manifest.
+- Gmail does not provide a public theme-switching API, so the extension interacts with its theme settings interface. Gmail layout changes may occasionally require selector updates.
+- Message-body adaptation is visual only. It does not edit the source of received messages or add dark-mode formatting to outgoing email.
 
 ## 📸 Screenshots
 
 ### Light Mode vs Dark Mode
+
 ![Gmail Theme Comparison](screenshots/comparison.png)
 
 
@@ -47,20 +75,45 @@ A Firefox extension that automatically syncs Gmail's theme with your system pref
 ## 🎯 Usage
 
 ### Automatic Mode (Default)
+
 Once installed, the extension automatically syncs with your system theme. No configuration needed!
 
 ### Manual Control
+
 Click the extension icon in your toolbar to access theme controls:
+
 - **Auto** - Follow system preferences
 - **Light** - Always use light mode
 - **Dark** - Always use dark mode
 
 ### Keyboard Shortcuts
+
 Currently no keyboard shortcuts available. Coming in a future update!
 
 ## 📋 Changelog
 
-### Version 1.3 (Current)
+### Version 1.4
+
+- 🎨 Replaced global page inversion with Gmail's native Default and Dark themes
+- 🌗 Added a targeted hybrid layer for message and compose surfaces Gmail leaves light
+- 🔄 Added live system-theme detection to every open Gmail tab
+- 💾 Retained Auto, Light, and Dark preferences across browser sessions
+- ✉️ Fixed low-contrast plain-text messages and light conversation backgrounds
+- 📰 Added selective message-body adaptation with original media colors preserved
+- 🧩 Fixed conversation titles, sender details, metadata, and action controls
+- ↩️ Darkened the reply/forward footer and buttons
+- ✍️ Added complete popup, expanded, and fullscreen compose coverage
+- 🪟 Darkened compose title bars, recipient and subject fields, editors, toolbars, and dynamically created panels
+- 📝 Fixed nested black text in compose and reply editors
+- ⋮ Darkened compose option menus and their nested submenus
+- 🔎 Added runtime surface detection for Gmail's dynamic layout variants
+- 🧹 Removed the background script and moved synchronization into the Gmail content script
+- 🔒 Removed the unnecessary `tabs` permission; only local extension storage remains
+- ♿ Added selected-state accessibility information to the popup controls
+- ✅ Added dependency-free automated tests for theme resolution, native switching, surface detection, and CSS coverage
+
+### Version 1.3
+
 - ✨ Added popup UI for manual theme control
 - 🎨 Three theme modes: Auto (system), Light, Dark
 - 🌗 Popup adapts to system light/dark theme
@@ -70,93 +123,15 @@ Currently no keyboard shortcuts available. Coming in a future update!
 - ✅ Improved overall dark mode consistency
 
 ### Version 1.2
+
 - 🎨 Enhanced dark mode color accuracy
 - 🐛 Bug fixes and performance improvements
 
 ### Version 1.1
+
 - 🚀 Initial public release
 - 🔄 Auto-sync with system preferences
 - ⚫️ Basic dark mode implementation
-
-## 🛠️ Development
-
-### Project Structure
-```
-gmail-theme-switcher-firefox/
-├── manifest.json          # Extension configuration
-├── background.js          # Background service worker
-├── content.js            # Content script for Gmail
-├── styles.css            # Dark mode styles
-├── popup.html            # Popup interface
-├── popup.css             # Popup styles
-├── popup.js              # Popup logic
-├── icons/                # Extension icons
-└── LICENSE               # MIT License
-```
-
-### Building from Source
-
-1. Clone the repository
-2. Make your changes
-3. Test in Firefox using `about:debugging`
-4. Submit a pull request!
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how you can help:
-
-1. 🐛 **Report bugs** - Use the [Issues](https://github.com/raulpop8/gmail-theme-switcher-firefox/issues) tab
-2. 💡 **Suggest features** - Open a feature request
-3. 🔧 **Submit pull requests** - Fork, change, and submit!
-4. ⭐ **Star this repository** - Show your support
-
-## 🐛 Reporting Issues
-
-Found a bug? Please report it!
-
-**Via Extension:**
-- Click the extension icon → "🐛 Report Issue"
-
-**Via GitHub:**
-- Open an [issue](https://github.com/raulpop8/gmail-theme-switcher-firefox/issues)
-- Include:
-  - Firefox version
-  - Extension version
-  - Steps to reproduce
-  - Screenshots (if possible)
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 💖 Support
-
-If you find this extension helpful, consider supporting its development:
-
-<p align="center">
-  <a href="https://ko-fi.com/raulpop" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/Support_on_Ko--fi-734bbe?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" />
-  </a>
-</p>
-
-You can also:
-- ⭐ Star this repository
-- ⭐ Leave a review on [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gmail-dark-mode-switcher/reviews/)
-- 🐦 Share on social media
-- 💬 Tell your friends!
-
-## 🔮 Roadmap
-
-Future features being considered:
-
-- [ ] Dynamic icons (changes based on active theme)
-- [ ] Custom color schemes (Sepia, High Contrast, OLED Black)
-- [ ] Keyboard shortcuts for quick theme toggle
-- [ ] Schedule-based theme switching (e.g., auto-dark after sunset)
-- [ ] Per-account theme preferences
-- [ ] Export/import settings
-
-Have a feature request? [Let me know!](https://github.com/raulpop8/gmail-theme-switcher-firefox/issues)
 
 ---
 
@@ -165,5 +140,7 @@ Have a feature request? [Let me know!](https://github.com/raulpop8/gmail-theme-s
 </p>
 
 <p align="center">
-  <i>Inspired by the need for a better Gmail experience</i>
+  <a href="https://ko-fi.com/raulpop" target="_blank" rel="noreferrer">
+  <img src="https://img.shields.io/badge/Support_on_Ko--fi-734bbe?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" />
+  </a>
 </p>
