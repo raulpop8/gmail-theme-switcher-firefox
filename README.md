@@ -95,10 +95,10 @@ Currently no keyboard shortcuts available. Coming in a future update!
 
 ### Version 1.5
 
-- Preserved incoming emails that already use a predominantly dark design
-- Added dominant-background detection for HTML message bodies and nested email tables
-- Kept light HTML and transparent plain-text messages compatible with dark mode
-- Added regression tests for dark, light, nested-table, and plain-text messages
+- 🌙 Preserved incoming emails that already use a predominantly dark design
+- 🔍 Added dominant-background detection for HTML message bodies and nested email tables
+- 📨 Kept light HTML and transparent plain-text messages compatible with dark mode
+- ✅ Added regression tests for dark, light, nested-table, and plain-text messages
 
 ### Version 1.4
 
